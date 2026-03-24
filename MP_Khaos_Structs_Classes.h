@@ -22,7 +22,7 @@ struct PCB
 	std::string fileName;
 	int startLoc;
 	char action;
-	int fileLen;
+	int fileLen = -1;
 	PCB* next = nullptr;
 
 	
@@ -45,7 +45,6 @@ struct PCB
 		{AvgBurstTime = (float)CPUTime / (float)((CPUCalls > 0) ? CPUCalls : 1);}
 	void print();
 	void printDisk();
-	int getPhyLoc(std::vector<int, int>);
 };
 
 class Memory
@@ -160,6 +159,7 @@ class DevList
 			DevList(int, _Type);
 			void interrupt(int, std::deque<PCB*>&);
 			void print();
+			void clearQueuedProcesses();
 			_Type getDevType()
 				{return devType;}
 			int getDevNum()
@@ -184,6 +184,7 @@ class CPU
 		PCB* sendProcess();
 		void systemCall(int, DevList&);
 		void interrupt(std::deque<PCB*>&);
+		void releaseProcessForShutdown();
 		void print();
 };
 #endif

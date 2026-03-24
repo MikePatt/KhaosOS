@@ -13,6 +13,7 @@
 #include <sstream>
 #include <limits.h>
 #include <stdio.h>
+#include <cctype>
 
 
 //char locCheck(char, DevList&);
@@ -102,7 +103,9 @@ void SysRun(DevList &PRINTERS, DevList &DISKS, DevList &CDROMS, CPU &_CPU)
 			else if(input.length() == 1)
 			{
 				typeCode[0] = input[0];
-				if (tolower(typeCode[0]) != 'p' && tolower(typeCode[0]) != 'c' && tolower(typeCode[0]) != 'c')
+				if (tolower(static_cast<unsigned char>(typeCode[0])) != 'p'
+					&& tolower(static_cast<unsigned char>(typeCode[0])) != 'd'
+					&& tolower(static_cast<unsigned char>(typeCode[0])) != 'c')
 					break;
 				std::cout << "\tP/D/C AND p/d/c must precede a number\t";
 			}
@@ -176,8 +179,24 @@ void SysRun(DevList &PRINTERS, DevList &DISKS, DevList &CDROMS, CPU &_CPU)
 			case 'C': CDROMS.interrupt(typeCode[1] - 48, Ready_Queue); break;
 			case 'h': Commands(); break;
 			case 'H': Commands(); break;
-			case 'q': std::cout << "\n\tKHAOS OPSYS IS SHUTTING DOWN!" << std::endl; return;
-			case 'Q': std::cout << "\n\tKHAOS OPSYS IS SHUTTING DOWN!" << std::endl; return;
+			case 'q':
+			case 'Q':
+				std::cout << "\n\tKHAOS OPSYS IS SHUTTING DOWN!" << std::endl;
+				while (!Job_Pool.empty())
+				{
+					delete Job_Pool.front();
+					Job_Pool.pop_front();
+				}
+				while (!Ready_Queue.empty())
+				{
+					delete Ready_Queue.front();
+					Ready_Queue.pop_front();
+				}
+				_CPU.releaseProcessForShutdown();
+				PRINTERS.clearQueuedProcesses();
+				DISKS.clearQueuedProcesses();
+				CDROMS.clearQueuedProcesses();
+				return;
 			default: std::cout << "\t!Invalid Command!"; break;
 		}
 

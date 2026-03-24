@@ -84,16 +84,28 @@ void Memory::allocate(PCB* add)
 
 void Memory::free(PCB* del)
 {
-	int spot;
+	if (del == nullptr)
+	{
+		std::cout << "Process Not Found in Memory!\n";
+		return;
+	}
+	bool found = false;
+	int spot = 0;
 	for (int i = 0; i < physAdd.size(); i++)
 	{
 		if (physAdd[i].first == del->pid)
 		{
 			physAdd[i] = std::make_pair(-1, 0);
 			spot = i;
+			found = true;
 		}
 	}
-	holes.push_back(std::make_pair(spot - ((del->segNum * del->segSize )- 1)  , spot));
+	if (!found)
+	{
+		std::cout << "Process Not Found in Memory!\n";
+		return;
+	}
+	holes.push_back(std::make_pair(spot - ((del->segNum * del->segSize )- 1), spot));
 	for (int j = 0; j < holes.size() - 1; j++)
 	{
 		for (int k = j + 1; k < holes.size(); k++)
@@ -336,10 +348,28 @@ DevList::DevList(int amt, _Type type) : devType(type), Devs(amt)
 
 void DevList::interrupt(int devLoc, std::deque<PCB*>& Ready)
 {
-	Devs[devLoc - 1].headPos = Devs[devLoc - 1].devQ.front()->cyLoc;
-	Ready.push_back(Devs[devLoc - 1].devQ.front());
-	Devs[devLoc - 1].devQ.pop_front();
-	return;	
+	std::deque<PCB*>& q = Devs[devLoc - 1].devQ;
+	if (q.empty())
+	{
+		std::cout << "That device queue is empty.\n";
+		return;
+	}
+	Devs[devLoc - 1].headPos = q.front()->cyLoc;
+	Ready.push_back(q.front());
+	q.pop_front();
+	return;
+}
+
+void DevList::clearQueuedProcesses()
+{
+	for (Device& d : Devs)
+	{
+		while (!d.devQ.empty())
+		{
+			delete d.devQ.front();
+			d.devQ.pop_front();
+		}
+	}
 }
 
 void DevList::print()
@@ -455,9 +485,17 @@ void CPU::endProcess()
 	TOTALCPUTIME =  TOTALCPUTIME + process->CPUTime;
 	PCB* del = process;
 	process = nullptr;
-	FREEMEM += (del->segNum * del->segSize);
 	delete del;
 	return;
+}
+
+void CPU::releaseProcessForShutdown()
+{
+	if (process != nullptr)
+	{
+		delete process;
+		process = nullptr;
+	}
 }
 
 PCB* CPU::getProcess()
