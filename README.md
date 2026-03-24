@@ -47,13 +47,4 @@ The program prompts for **quantum length** (ms), **memory size** (words), and co
 | `MP_Khaos_Functions.h` | Memory, CPU, device list, and related implementations |
 | `MP_Khaos_Structs_Classes.h` | `PCB`, `Memory`, `DevList`, `CPU` |
 | `MP_Khaos_Global.h` | Shared globals |
-
-## Interview talking points
-
-- **Why a simulator**: Lets you reason about OS policies (scheduling, memory fragmentation, I/O overlap) without kernel code.
-- **Tradeoffs**: Fixed quantum vs responsiveness; compaction cost vs external fragmentation; interrupt-driven vs polling for device completion.
-- **Extensions you could mention**: Page tables instead of contiguous segments, priority scheduling, or starvation avoidance on disk queues.
-
-## Credits
-
 Original implementation: Michael Patterson (course project; instructor Eric Schweitzer). Repository files retain in-source authorship notes.
