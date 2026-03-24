@@ -47,4 +47,3 @@ The program prompts for **quantum length** (ms), **memory size** (words), and co
 | `MP_Khaos_Functions.h` | Memory, CPU, device list, and related implementations |
 | `MP_Khaos_Structs_Classes.h` | `PCB`, `Memory`, `DevList`, `CPU` |
 | `MP_Khaos_Global.h` | Shared globals |
-Original implementation: Michael Patterson (course project; instructor Eric Schweitzer). Repository files retain in-source authorship notes.
